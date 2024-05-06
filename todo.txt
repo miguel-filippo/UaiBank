@@ -1,2 +1,4 @@
 1. Implementar o output file no fim do programa
 2. Comentar o código
+3. Implementar uma leitura dos usuarios do output file da ultima instancia do programa.
+4. Modificar o sistema de ID de forma que fique salvo mesmo depois de fechar e abrir o programa.
