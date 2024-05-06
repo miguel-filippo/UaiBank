@@ -1,1 +1,2 @@
 1. Implementar o output file no fim do programa
+2. Comentar o código
