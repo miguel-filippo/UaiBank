@@ -22,4 +22,24 @@ Este sistema bancário permite a inserção, consulta, remoção e transferênci
 ## 🛠️ Instalação e Uso
 1. Clone o repositório:
    ```sh
-   git clone https://github.com/username/repo.git
+   git clone https://github.com/miguel-filippo/UaiBank
+
+2. Compile o programa baseado no seu compilador de preferência:
+   ```sh
+   clang -o UaiBank main.c
+   gcc -o UaiBank main.c
+
+3. Execute o .exe:
+   ```sh
+   ./UaiBank
+
+🤝 Contribuição
+Contribuições são bem-vindas! Para sugestões, melhorias ou correções, abra uma issue ou envie um pull request.
+
+📄 Licença
+Este projeto é licenciado sob a Licença MIT - consulte o arquivo LICENSE para mais detalhes.
+
+<div align="center">
+  Feito com ❤️ por Miguel Filippo Rocha Calhabeu
+</div>
+```
