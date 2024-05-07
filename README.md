@@ -36,9 +36,6 @@ Este sistema bancário permite a inserção, consulta, remoção e transferênci
 🤝 Contribuição
 Contribuições são bem-vindas! Para sugestões, melhorias ou correções, abra uma issue ou envie um pull request.
 
-📄 Licença
-Este projeto é licenciado sob a Licença MIT - consulte o arquivo LICENSE para mais detalhes.
-
 <div align="center">
   Feito com ❤️ por Miguel Filippo Rocha Calhabeu
 </div>
