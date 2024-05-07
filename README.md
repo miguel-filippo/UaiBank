@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/username/repo/raw/main/logo.png" alt="Logo" width="80" height="80">
+  <img src="https://github.com/miguel-filippo/UaiBank/raw/main/logo.png" alt="Logo" width="80" height="80">
   <h1>🚀 UaiBank - Sistema Bancário Simples 🏦</h1>
   <p>
     Bem-vindo ao UaiBank! Este é um sistema bancário simples desenvolvido em C para gerenciar usuários, suas informações e transferências de saldo.
@@ -42,4 +42,3 @@ Este projeto é licenciado sob a Licença MIT - consulte o arquivo LICENSE para 
 <div align="center">
   Feito com ❤️ por Miguel Filippo Rocha Calhabeu
 </div>
-```
