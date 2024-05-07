@@ -29,14 +29,14 @@ int GenID(struct Person* array, int arraySize) {
 }
 
 // Adiciona uma pessoa a lista de pessoas [data]
-void addPerson(struct Person* array, int* arraySize, char* name, short int age, float balance) {
+void addPerson(struct Person* array, int* arraySize, char* name, short int age, float balance, short int ID) {
     struct Person temp;
     strcpy(temp.name, name);
     temp.age = age;
     temp.balance = balance;
-    temp.id = GenID(array, *arraySize);
+    temp.id = ID;
     array[*arraySize] = temp;
-    *arraySize = *arraySize + 1;
+    (*arraySize)++;
 }
 
 // Remove uma pessoa da lista de pessoas [data] através do id
@@ -79,22 +79,56 @@ int main() {
 
     char name[100];
     char oldName[100];
+    char line[200];
     short int age;
+    short int userID;
     float balance;
     int consultID;
     int sourceID, destinationID;
     float amount;
     int removeID;
     int userNumber;
+    
 
-    // Aloca memória para o data (array de Person)
+    // Aloca memória para o data (array de Person).
     data = (struct Person*)malloc(dataCapacity * sizeof(struct Person));
+
+    // Inicializa o data com os dados dos usuarios cadastrados nas instancias anteriores.
+    FILE* file;
+    file = fopen("data.txt", "r");
+    if (file == NULL) {
+        printf("Erro ao abrir o arquivo.");
+        return 1;
+    }
+
+    while (fgets(line, sizeof(line), file) != NULL) {
+            struct Person temp;
+            int dataRead = sscanf(line, " %99[^0-9] %hd %f %hd", name, &age, &balance, &userID);
+
+            if (strlen(name) > 0) {
+                name[strlen(name) - 1] = '\0';
+            }
+
+            if (dataRead == 4) {
+                if (dataSize >= dataCapacity) {
+                    dataCapacity++;
+                    data = (struct Person*)realloc(data, dataCapacity * sizeof(struct Person));
+                    if (data == NULL) {
+                        printf("Erro ao realocar memória.\n");
+                        exit(1);
+                    }
+                }
+                addPerson(data, &dataSize, name, age, balance,userID);
+            }
+        }
+    
+    fclose(file);
 
     printf("--------------Bem vind@ ao UaiBank!--------------\n");
     printf("1 - Inserir novo usuário.\n");
     printf("2 - Inserir múltiplos usuários.\n");
     printf("3 - Consultar saldo de usuário por ID.\n");
-    printf("4 - Fazer uma transferência entre usuário.\n");
+    printf("4 - Fazer uma transferência entre usuários.\n");
     printf("5 - Remover usuário por ID.\n");
     printf("6 - Listar todos usuários.\n");
     printf("Caso deseje sair, digite um número diferente dos anteriores.\n");
@@ -119,7 +153,7 @@ int main() {
                         exit(1);
                     }
                 }
-                addPerson(data, &dataSize, name, age, balance);
+                addPerson(data, &dataSize, name, age, balance, GenID(data, dataSize));
                 printf("%s foi adicionado com o ID: %d\n", data[dataSize -1].name, data[dataSize -1].id);
                 break;
 
@@ -142,7 +176,7 @@ int main() {
                             exit(1);
                         }
                     }
-                    addPerson(data, &dataSize, name, age, balance);
+                    addPerson(data, &dataSize, name, age, balance, GenID(data, dataSize));
                     printf("\n%s foi adicionado com o ID: %d\n", data[dataSize -1].name, data[dataSize -1].id);
                 }
                 break;
@@ -157,7 +191,7 @@ int main() {
                 break;
 
             case 4:
-                printf("Informe o ID de origem e destino da transferência e a quantia a ser transferida: ");
+                printf("Informe <id origem> <id destino> <quantia>: ");
                 scanf("%d %d %f", &sourceID, &destinationID, &amount);
 
                 if (amount < 0) {
@@ -200,13 +234,23 @@ int main() {
         printf("1 - Inserir novo usuário.\n");
         printf("2 - Inserir múltiplos usuários.\n");
         printf("3 - Consultar saldo de usuário por ID.\n");
-        printf("4 - Fazer uma transferência entre usuário. <id origem> <id destino> <quantia>\n");
+        printf("4 - Fazer uma transferência entre usuário.\n");
         printf("5 - Remover usuário por ID.\n");
         printf("6 - Listar todos usuários.\n");
         printf("Caso deseje sair, digite um número diferente dos anteriores.\n");
         printf("--------------------------------------------------\n");
         printf("Opção: ");
         scanf("%d", &option);
+    }
+
+    file = fopen("data.txt", "w");
+    if (file == NULL) {
+        printf("Erro ao abrir o arquivo.");
+        return 1;
+    }
+
+    for (int i = 0; i < dataSize; i++) {
+        fprintf(file, "%s %hd %f %hd\n", data[i].name, data[i].age, data[i].balance, data[i].id);
     }
 
     free(data);
