@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="https://github.com/miguel-filippo/UaiBank/raw/main/logo.png" alt="Logo" width="80" height="80">
   <h1>🚀 UaiBank - Sistema Bancário Simples 🏦</h1>
+  <h1>🎓 Este é um projeto desenvolvido para a disciplina de Introdução à Ciência da Computação I na Universidade de São Paulo (USP), com orientação da professora Lina Garcés. 🌟</h1>
   <p>
     Bem-vindo ao UaiBank! Este é um sistema bancário simples desenvolvido em C para gerenciar usuários, suas informações e transferências de saldo.
   </p>
