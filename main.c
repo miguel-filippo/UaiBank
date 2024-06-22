@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <locale.h>
 #include <string.h>
+#include <time.h>
 
 // Pesssoa
 struct Person
@@ -9,33 +10,19 @@ struct Person
     char name[100];
     short int age;
     float balance;
-    int id;
+    long id;
 };
 
 // Gera um id para uma pessoa baseado nos id's existentes já
-int GenID(struct Person *array, int arraySize)
+long GenID()
 {
-    int maxID = 0;
-
-    if (arraySize == 0)
-    {
-        return 1;
-    }
-    else
-    {
-        for (int i = 0; i < arraySize; i++)
-        {
-            if (array[i].id > maxID)
-            {
-                maxID = array[i].id;
-            }
-        }
-        return maxID + 1;
-    }
+    long ID;
+    ID = time(NULL);
+    return ID;
 }
 
 // Adiciona uma pessoa a lista de pessoas [data]
-void addPerson(struct Person *array, int *arraySize, char *name, short int age, float balance, short int ID)
+void addPerson(struct Person *array, int *arraySize, char *name, short int age, float balance, long ID)
 {
     struct Person temp;
     strcpy(temp.name, name);
@@ -76,10 +63,60 @@ struct Person *findPersonById(struct Person *array, int arraySize, int id)
     return NULL;
 }
 
-void transfer(struct Person *source, struct Person *destination, float amount)
+void transfer(struct Person *source, struct Person *destination, float amount, FILE *file)
 {
     source->balance -= amount;
     destination->balance += amount;
+    fprintf(file, "%s %s %f\n", source->name, destination->name, amount);
+}
+
+int countChar(char *str, char c)
+{
+    int count = 0;
+    for (int i = 0; i < strlen(str); i++)
+        {
+            if (str[i] == c)
+            {
+                count++;
+            }
+        }
+    return count;
+}
+
+int parseName(char *name, char *input)
+{
+    int i = 0;
+    while (input[i] != '\0' && input[i] != ',')
+        {
+            name[i] = input[i];
+            i++;
+        }
+    name[i] = '\0';
+    i++;
+    return i;
+}
+
+int parseInformation(char *name, short int *age, float *balance)
+{
+    char input[300];
+    fgets(input, 300, stdin);
+    
+    if(countChar(input, ',') != 2)
+    {
+        printf("Erro: Formato inválido.\n");
+        return 1;
+    }
+
+    int stopIndex = parseName(name, input);
+
+    if (strlen(name) > 100)
+    {
+        printf("Erro: Nome deve ter no máximo 100 caracteres.\n");
+        return 1;
+    }
+
+    sscanf(input + stopIndex + 1, "%hd, %f", age, balance);
+    return 0;
 }
 
 int main()
@@ -92,18 +129,26 @@ int main()
 
     int option;
 
-    char name[100];
+    char name[200];
     char oldName[100];
-    char line[200];
+    char line[300];
     short int age;
-    short int userID;
+    int userID;
     float balance;
     int consultID;
     int sourceID, destinationID;
     float amount;
     int removeID;
     int userNumber;
-
+    
+    FILE *transfersFile;
+    transfersFile = fopen("transfers.txt", "w");
+    if (transfersFile == NULL)
+    {
+        printf("Erro ao abrir o arquivo.");
+        return 1;
+    }
+    
     // Aloca memória para o data (array de Person).
     data = (struct Person *)malloc(dataCapacity * sizeof(struct Person));
 
@@ -119,7 +164,7 @@ int main()
     while (fgets(line, sizeof(line), file) != NULL)
     {
         struct Person temp;
-        int dataRead = sscanf(line, " %99[^0-9] %hd %f %hd", name, &age, &balance, &userID);
+        int dataRead = sscanf(line, " %99[^0-9] %hd %f %d", name, &age, &balance, &userID);
 
         if (strlen(name) > 0)
         {
@@ -155,19 +200,20 @@ int main()
     printf("--------------------------------------------------\n");
     printf("Opção: ");
     scanf("%d", &option);
+    char foo;
+    
 
     while (option > 0 && option < 7)
     {
         switch (option)
         {
         case 1:
-            printf("Informe: <nome> <idade> <saldo atual> ");
-            scanf(" %99[^0-9] %hd %f", name, &age, &balance);
-            if (strlen(name) > 0)
-            {
-                name[strlen(name) - 1] = '\0';
-            }
+            scanf("%c", &foo);
+            printf("Informe: <nome>, <idade>, <saldo atual>\n");
 
+            int callback = parseInformation(name, &age, &balance);
+            if (callback == 1) break;
+            
             if (dataSize >= dataCapacity)
             {
                 dataCapacity++;
@@ -178,35 +224,36 @@ int main()
                     exit(1);
                 }
             }
-            addPerson(data, &dataSize, name, age, balance, GenID(data, dataSize));
-            printf("%s foi adicionado com o ID: %d\n", data[dataSize - 1].name, data[dataSize - 1].id);
+            addPerson(data, &dataSize, name, age, balance, GenID());
+            printf("%s foi adicionado com o ID: %ld\n", data[dataSize - 1].name, data[dataSize - 1].id);
             break;
 
         case 2:
             printf("Quantos usuários serão adicionados?: ");
             scanf("%d", &userNumber);
+            scanf("%c", &foo);
 
             for (int i = 0; i < userNumber; i++)
             {
-                printf("Informe: <nome> <idade> <saldo atual> ");
-                scanf(" %99[^0-9] %hd %f", name, &age, &balance);
-                if (strlen(name) > 0)
+                printf("Informe: <nome>, <idade>, <saldo atual>\n");
+                
+                int callback = parseInformation(name, &age, &balance);
+                
+                if (callback != 1)
                 {
-                    name[strlen(name) - 1] = '\0';
-                }
-
-                if (dataSize >= dataCapacity)
-                {
-                    dataCapacity++;
-                    data = (struct Person *)realloc(data, dataCapacity * sizeof(struct Person));
-                    if (data == NULL)
+                    if (dataSize >= dataCapacity)
                     {
-                        printf("Erro ao realocar memória.\n");
-                        exit(1);
+                        dataCapacity++;
+                        data = (struct Person *)realloc(data, dataCapacity * sizeof(struct Person));
+                        if (data == NULL)
+                        {
+                            printf("Erro ao realocar memória.\n");
+                            exit(1);
+                        }
                     }
+                    addPerson(data, &dataSize, name, age, balance, GenID());
+                    printf("%s foi adicionado com o ID: %ld\n\n", data[dataSize - 1].name, data[dataSize - 1].id);
                 }
-                addPerson(data, &dataSize, name, age, balance, GenID(data, dataSize));
-                printf("\n%s foi adicionado com o ID: %d\n", data[dataSize - 1].name, data[dataSize - 1].id);
             }
             break;
 
@@ -242,12 +289,12 @@ int main()
             // Verifica se os usuarios participantes de transferência existem
             if (source == NULL)
             {
-                printf("\nO usuário com ID: %hd não foi encontrado.\n", sourceID);
+                printf("\nO usuário com ID: %d não foi encontrado.\n", sourceID);
                 break;
             }
             else if (destination == NULL)
             {
-                printf("\nO usuário com ID: %hd não foi encontrado.\n", destinationID);
+                printf("\nO usuário com ID: %d não foi encontrado.\n", destinationID);
                 break;
             }
 
@@ -259,7 +306,7 @@ int main()
             }
 
             // Realiza a transferência entre os usuários
-            transfer(source, destination, amount);
+            transfer(source, destination, amount, transfersFile);
             printf("\nA transferência foi realizada com sucesso.\n");
             break;
 
@@ -275,7 +322,7 @@ int main()
             {
                 for (int i = 0; i < dataSize; i++)
                 {
-                    printf("Nome: %s | Idade: %hd | Saldo: %.2f | ID: %d\n", data[i].name, data[i].age, data[i].balance, data[i].id);
+                    printf("Nome: %s | Idade: %hd | Saldo: %.2f | ID: %ld\n", data[i].name, data[i].age, data[i].balance, data[i].id);
                 }
             }
             else
@@ -305,7 +352,7 @@ int main()
 
     for (int i = 0; i < dataSize; i++)
     {
-        fprintf(file, "%s %hd %f %hd\n", data[i].name, data[i].age, data[i].balance, data[i].id);
+        fprintf(file, "%s %hd %f %ld\n", data[i].name, data[i].age, data[i].balance, data[i].id);
     }
 
     free(data);
